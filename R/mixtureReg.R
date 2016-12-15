@@ -171,6 +171,7 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
     mixtureRegModel = list(
       "lmList" = result$lmList,
       "monitor" = monitor)
+    class(mixtureRegModel) = c("mixtureReg", class(mixtureRegModel))
     return(mixtureRegModel)
   }
 }
