@@ -2,7 +2,8 @@
 mixtureReg <- function(regData, formulaList, initialWList = NULL,
                        epsilon = 1e-08, max_iter = 10000,
                        # min_sigma = 0.1,
-                       min_lambda = 0.05, min_sigmaRatio = 0.1, max_restart = 15
+                       min_lambda = 0.05, min_sigmaRatio = 0.1, max_restart = 15,
+                       silently = FALSE
 ) {
   # need to take care of NULL values in data
   #
@@ -163,10 +164,12 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
           )
     }
 
-    cat("diff = ", diff, "\n")
-    cat("iter = ", iter, "\n")
-    cat("restart = ", restart, "\n")
-    cat("log-likelihood = ", ll, "\n")
+    if (!silently) {
+      cat("diff = ", diff, "\n")
+      cat("iter = ", iter, "\n")
+      cat("restart = ", restart, "\n")
+      cat("log-likelihood = ", ll, "\n")
+    }
 
     mixtureRegModel = list(
       "lmList" = result$lmList,
