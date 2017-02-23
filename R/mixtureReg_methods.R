@@ -28,6 +28,7 @@ plot.2lm <- function(lmList, yName, xName, which = 1:2) {
 }
 
 plot.mixtureReg <- function(mixtureModel, yName = NULL, xName = NULL, which = 1:2) {
-  # TODO: extract yName and xName if they are not specified.
+  if (is.null(yName)) {yName = names(mixtureModel$lmList[[1]]$model)[1]}
+  if (is.null(xName)) {xName = names(mixtureModel$lmList[[1]]$model)[2]}
   plot.2lm(mixtureModel$lmList, yName, xName, which)
 }
