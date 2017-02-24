@@ -1,14 +1,19 @@
 # mixtureReg
 mixtureReg <- function(regData, formulaList, initialWList = NULL,
                        epsilon = 1e-08, max_iter = 10000,
-                       # min_sigma = 0.1,
                        min_lambda = 0.05, min_sigmaRatio = 0.1, max_restart = 15,
                        silently = FALSE
 ) {
-  # need to take care of NULL values in data
-  #
+  # regData: data frame used in fitting model.
   # formulaList: a list of the regression components that need to be estimated.
   # initialWList: a list of weights guesses (provided by user).
+
+  # missing values in data or data with no variance will crash the algorithm
+  yName = all.vars(formulaList[[1]])[1]
+  stopifnot(
+    all(!is.na(regData[, yName])),
+    var(regData[ ,yName]) > 0
+    )
 
   require(dplyr)
 
