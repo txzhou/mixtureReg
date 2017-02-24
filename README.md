@@ -23,7 +23,7 @@ To install, use the `devtools` package.
 ```R
 install.packages("devtools")
 library(devtools)
-devtools::install_github("txzhou/SimulateBML")
+devtools::install_github("txzhou/mixtureReg")
 ```
 
 ## Usage
