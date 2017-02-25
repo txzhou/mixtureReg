@@ -1,4 +1,3 @@
-# mixtureReg
 mixtureReg <- function(regData, formulaList, initialWList = NULL,
                        epsilon = 1e-08, max_iter = 10000,
                        min_lambda = 0.05, min_sigmaRatio = 0.1, max_restart = 15,
@@ -31,15 +30,7 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
     sumsP = rowSums(do.call(cbind, PList))
     WList = lapply(PList, function(p) p/sumsP)
     llList = lapply(lmList, logLik)
-    # ll = weighted.mean(x = unlist(llList), w = unlist(lambdaList))  # approximately log-likelihood
     ll = sum(log(sumsP)) # Log-likelihood
-    ######
-    # cat(restart)
-    # f1 = sapply(WList, mean)
-    # ll1 = logLik(lmList[[1]])
-    # ll2 = logLik(lmList[[2]])
-    # browser()
-    ######
     return(list(WList = WList, ll = ll))
   }
 
@@ -52,12 +43,6 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
     wlm <- function(i) {
       tempData <- regData
       tempData$WW <- WList[[i]]
-      flag = sum(is.na(tempData$WW))
-      ######
-      # flag2 = lambdaList[[1]]
-      # flag3 = lambdaList[[2]]
-      # browser()
-      ######
       reg = lm(formula = formulaList[[i]], weights = WW, data = tempData)
       return(reg)
     }
@@ -79,7 +64,6 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
         errorMessage <- "abnormal logLik"
         answer <- TRUE
       } else {
-        # sigma_s = sapply(newResult$lmList, function(m) summary(m)$sigma)
         sigma_s = mapply(function(m, lambda) {summary(m)$sigma / sqrt(lambda)}, newResult$lmList, newResult$lambdaList, SIMPLIFY = TRUE)
         if (any(is.na(sigma_s))) {
           errorMessage <- "sigma is NA"
@@ -100,7 +84,6 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
   }
 
   randomWList <- function(n, k) {
-    # quantile(X, na.rm = TRUE, probs = c(0:6)/6)[c(1,3,5)]
     randomWeightMatrix = matrix(runif(n*k, min = 0.1, max = 0.9), nrow = n, ncol = k)
     WMatrix = randomWeightMatrix / (rowSums(randomWeightMatrix))
     WList = lapply(as.list(1:k), function(i) WMatrix[,i])
@@ -178,7 +161,8 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
 
     mixtureRegModel = list(
       "lmList" = result$lmList,
-      "monitor" = monitor)
+      "monitor" = monitor,
+      "regData" = regData)
     class(mixtureRegModel) = c("mixtureReg", class(mixtureRegModel))
     return(mixtureRegModel)
   }
@@ -202,16 +186,7 @@ initializeWList <- function(y, initialGuess,
   PList = mapply(conditionalP, resList, lambdaList, sigmaList, SIMPLIFY = FALSE)
   sumsP = rowSums(do.call(cbind, PList))
 
-  # browser()
-
   WList = lapply(PList, function(p) {p/sumsP})
-  # WList = lapply(PList,
-  #                function(p) {
-  #                  minimal = 1e-5
-  #                  w = p/sumsP
-  #                  return((w <= minimal) * (minimal) +
-  #                           (minimal < w & w < 1 - minimal) * w +
-  #                           (w >= 1 - minimal) * (1 - minimal))
-  #                })
+
   return(WList)
 }
