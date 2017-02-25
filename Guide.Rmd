@@ -1,0 +1,108 @@
+---
+title: '**mixtureReg**: A Quick Start'
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document: default
+---
+
+In this tutorial, we are going to show how to use **mixtureReg** to model data with two possible regimes.
+
+# Data
+The data used for demostration purpose here is the CO2 data set from the **mixtools** package.
+```{r}
+library(mixtools)
+data("CO2data")
+head(CO2data)
+```
+
+
+# A simple example
+The motivation of mixture of regressions is that there can be two different regimes in the data so we want to fit two lines through the data.
+
+We can easily achieve this by putting two regression formula into a list and feed it into the **mixtureReg** function.
+
+In this case, the message shows that the model converges in 32 iterations.
+
+```{r}
+library(mixtureReg)
+
+mx1 <- mixtureReg(
+  regData = CO2data,
+  formulaList = list(formula(CO2 ~ GNP),
+                     formula(CO2 ~ GNP))
+)
+```
+
+#### The fit
+We provide a plot method (S3 method) to visualize the predictions from the model.
+The circles below are the original data points and the red lines are predictions from our model.
+```{r}
+plot(mx1, which = 1)
+```
+
+#### The weights
+Other than predictions, The mixture of regressions also produces a weight estimate for each data point which indicates the posterior probability of membership to the first regression line.
+
+We provide another plot method to visualize these weights.
+The circles below are the weights and the red line is a non-parametric fit through those weights.
+```{r}
+plot(mx1, which = 2)
+```
+
+#### The iterations
+(Mainly for debugging purposes) We also provide a *monitor* component for modelers to learn more about what are happening in iterations.
+
+```{r}
+head(mx1$monitor)
+```
+
+
+# Flexible modeling
+A nice feature of this package is that we can flexibly specify the formula as we would in **lm**.
+
+For example, we can restrict one regression line to be horizontal with no slope coefficient:
+
+```{r}
+mx2 <- mixtureReg(
+  regData = CO2data,
+  formulaList = list(formula(CO2 ~ 1),
+                     formula(CO2 ~ GNP))
+  )
+
+plot(mx2, yName = "CO2", xName = "GNP", which = 1)
+```
+
+We can also specify 2nd order polynomial lines.
+```{r}
+mx3 <- mixtureReg(
+  regData = CO2data,
+  formulaList = list(formula(CO2 ~ GNP + I(GNP^2)),
+                     formula(CO2 ~ GNP + I(GNP^2)))
+  )
+
+plot(mx3, yName = "CO2", xName = "GNP", which = 1)
+```
+
+# Comparison with **mixtools**
+The main shortcoming of **mixtools** is that it doesn't provide easy to use options to restrict model coefficients like we do in model 2.
+
+The following is an example from Tatiana Benaglia, Didier Chauveau, David R. Hunter, Derek Young (2009).
+This example produces similar results with our model 1.
+
+```{r}
+compare1 <- mixtools::regmixEM(
+  CO2data$CO2, CO2data$GNP,
+  lambda = c(1/4, 3/4),
+  beta = matrix(c(2, 0, 0, 1), 2, 2),
+  sigma = c(1,1)
+  )
+
+plot(compare1, whichplots = 2)
+```
+
+# References
+
+de Veaux RD (1989). "Mixtures of Linear Regressions." Computational Statistics and Data Analysis, 8, 227-245.
+
+Tatiana Benaglia, Didier Chauveau, David R. Hunter, Derek Young (2009). mixtools: An R Package for Analyzing Finite Mixture Models. Journal of Statistical Software, 32(6), 1-29. URL http://www.jstatsoft.org/v32/i06/.
