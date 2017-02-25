@@ -1,11 +1,25 @@
 # mixtureReg
 An R package to fit mixture of linear regressions.
 
+![An example] (./mx1.png)
+
 ## Summary
 This package implements and improves an EM algorithm that was discribed in de Veaux RD (1989), which can obtain the MLE estimators when the goal is to fit two linear regressions through a data set.
 
 Note that the word "linear" sounds restricting but when one feed in nonlinear transformations of predictors into it, one can fit nonlinear models as well.
 This is not a big news for experienced users of linear regression.
+
+## Installation
+To install, use the `devtools` package.
+
+```R
+install.packages("devtools")
+library(devtools)
+devtools::install_github("txzhou/mixtureReg")
+```
+
+## Quick Start
+A [guide] (./Guide.pdf) to use the `mixtureReg` package is provided.
 
 ## Why a new package
 The already available function `regmixEM` in the `mixtools` package can complete a similar job but does not offer the option to impose restrictions to the coefficients.
@@ -17,22 +31,12 @@ However, there is a way to solve it more intuitively.
 In its `lm` class, R has already offered powerful coefficient restriction capability through the unique formula representing language.
 So this package implements the algorithm based on the powerfulness of the `lm` class and now offers the same flexibility to model the mixture of regressions.
 
-## Installation
-To install, use the `devtools` package.
+## Future plan
 
-```R
-install.packages("devtools")
-library(devtools)
-devtools::install_github("txzhou/mixtureReg")
-```
-
-## Usage
-A [guide] (./Guide.pdf) to use the `mixtureReg` package is provided.
-
-## Extension
-Further developing ideas include:
   - Create a `logLik` method: Which is a commonly seen method in R, and can potentially simplify the code.
-  - Extends to 3 or more regression lines: It is natural. However in practice it's not a common user case.
+  - Extends to 3 or more regression lines: It is natural.
+  However in practice it's not a common user case.
+  Will consider to add it upon request.
 
 ## References
 de Veaux RD (1989). "Mixtures of Linear Regressions." Computational Statistics and Data Analysis, 8, 227-245.

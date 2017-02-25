@@ -1,9 +1,9 @@
 ---
 title: '**mixtureReg**: A Quick Start'
 output:
-  html_document: default
-  html_notebook: default
   pdf_document: default
+  html_notebook: default
+  html_document: default
 ---
 
 In this tutorial, we are going to show how to use **mixtureReg** to model data with two possible regimes.
