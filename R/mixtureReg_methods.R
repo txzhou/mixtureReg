@@ -22,7 +22,7 @@ plot.2lm <- function(lmList, yName, xName, which = 1:2) {
     orderedLines(x = XX, y = Yhat2, col = "red")
   }
   if (2 %in% which) {
-    plot(x = XX, y = W2, xlab = xName, ylab = yName)
+    plot(x = XX, y = W2, xlab = xName, ylab = "Weights")
     orderedLines(x = XX, y = predict(loess(W2 ~ XX)), col = "red")
   }
 }
