@@ -61,7 +61,10 @@ head(mx1$monitor)
 # Flexible modeling
 A nice feature of this package is that we can flexibly specify the formula as we would in **lm**.
 
-For example, we can restrict one regression line to be horizontal with no slope coefficient:
+For example, we can restrict one regression line to be horizontal with no slope coefficient.
+
+This example also helps to demonstrate the usage of "yName" and "xName" arguments in the plot method.
+When not specified, the plot method will search the variables in the first formula, which will not work in this case.
 
 ```{r}
 mx2 <- mixtureReg(
@@ -81,7 +84,7 @@ mx3 <- mixtureReg(
                      formula(CO2 ~ GNP + I(GNP^2)))
   )
 
-plot(mx3, yName = "CO2", xName = "GNP", which = 1)
+plot(mx3, which = 1)
 ```
 
 # Comparison with **mixtools**
