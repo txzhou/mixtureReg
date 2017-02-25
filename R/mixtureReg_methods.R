@@ -13,10 +13,10 @@ plot.mixtureReg <- function(mixtureModel, yName = NULL, xName = NULL, which = 1:
 
   XX = mixtureModel$regData[ , xName]
   YY = mixtureModel$regData[ , yName]
-  Yhat1 = predict(lmList[[1]])
-  Yhat2 = predict(lmList[[2]])
-  W1 = lmList[[1]]$weights
-  W2 = lmList[[2]]$weights
+  Yhat1 = predict(mixtureModel$lmList[[1]])
+  Yhat2 = predict(mixtureModel$lmList[[2]])
+  W1 = mixtureModel$lmList[[1]]$weights
+  W2 = mixtureModel$lmList[[2]]$weights
 
   if (1 %in% which) {
     plot(x = XX, y = YY, xlab = xName, ylab = yName)
