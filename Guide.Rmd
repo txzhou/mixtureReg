@@ -42,10 +42,9 @@ plot(mx1, which = 1)
 ```
 
 #### The weights
-Other than predictions, The mixture of regressions also produces a weight estimate for each data point which indicates the posterior probability of membership to the first regression line.
-
+Other than predictions, The mixture of regressions also produces weight estimates for each data point which indicate the posterior probabilities of membership to the regression lines.
 We provide another plot method to visualize these weights.
-The circles below are the weights and the red line is a non-parametric fit through those weights.
+
 ```{r}
 plot(mx1, which = 2)
 ```
@@ -85,6 +84,18 @@ mx3 <- mixtureReg(
   )
 
 plot(mx3, which = 1)
+```
+
+We can also fit three (or more) regressions at the same time.
+```{r}
+mx4 <- mixtureReg(
+  regData = CO2data,
+  formulaList = list(formula(CO2 ~ GNP),
+                     formula(CO2 ~ GNP),
+                     formula(CO2 ~ GNP))
+  )
+
+plot(mx4, which = 1)
 ```
 
 # Comparison with **mixtools**
