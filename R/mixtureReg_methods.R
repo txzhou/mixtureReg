@@ -13,19 +13,20 @@ plot.mixtureReg <- function(mixtureModel, yName = NULL, xName = NULL, which = 1:
 
   XX = mixtureModel$regData[ , xName]
   YY = mixtureModel$regData[ , yName]
-  Yhat1 = predict(mixtureModel$lmList[[1]])
-  Yhat2 = predict(mixtureModel$lmList[[2]])
-  W1 = mixtureModel$lmList[[1]]$weights
-  W2 = mixtureModel$lmList[[2]]$weights
+  YhatList = lapply(X = mixtureModel$lmList, FUN = function(x) predict(x))
+  WList = lapply(X = mixtureModel$lmList, FUN = function(x) x$weights)
 
   if (1 %in% which) {
     plot(x = XX, y = YY, xlab = xName, ylab = yName)
-    orderedLines(x = XX, y = Yhat1, col = "red")
-    orderedLines(x = XX, y = Yhat2, col = "red")
+    for (i in 1:length(mixtureModel$lmList)) {
+      orderedLines(x = XX, y = YhatList[[i]], col = i + 1)
+    }
   }
 
   if (2 %in% which) {
-    plot(x = XX, y = W2, xlab = xName, ylab = "Weights")
-    orderedLines(x = XX, y = predict(loess(W2 ~ XX)), col = "red")
+    for (i in 1:length(mixtureModel$lmList)) {
+      plot(x = XX, y = WList[[i]], xlab = xName, ylab = paste0("Weights_", i))
+      orderedLines(x = XX, y = predict(loess(WList[[i]] ~ XX)), col = i + 1)
+    }
   }
 }

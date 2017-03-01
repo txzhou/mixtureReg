@@ -4,7 +4,7 @@ An R package to fit mixture of linear regressions.
 ![An example] (./mx1.png)
 
 ## Summary
-This package implements and improves an EM algorithm that was discribed in de Veaux RD (1989), which can obtain the MLE estimators when the goal is to fit two linear regressions through a data set.
+This package implements and improves an EM algorithm, which can obtain the MLE estimators when the goal is to fit two or more linear regressions through data.
 
 Note that the word "linear" sounds restricting but when one feed in nonlinear transformations of predictors into it, one can fit nonlinear models as well.
 This is not a big news for experienced users of linear regression.
@@ -34,9 +34,6 @@ So this package implements the algorithm based on the powerfulness of the `lm` c
 ## Future plan
 
   - Create a `logLik` method: Which is a commonly seen method in R, and can potentially simplify the code.
-  - Extends to 3 or more regression lines: It is natural.
-  However in practice it's not a common user case.
-  Will consider to add it upon request.
 
 ## References
 de Veaux RD (1989). "Mixtures of Linear Regressions." Computational Statistics and Data Analysis, 8, 227-245.
