@@ -12,12 +12,16 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
   stopifnot(
     all(!is.na(regData[, yName])),
     var(regData[ ,yName]) > 0
-    )
+  )
 
   require(dplyr)
 
-  # E step
+  # E step: update WList, ll
   conditionalP <- function(res, lambda, sigma) {
+    # res: vector of residuals from predictions
+    # lambda: vector or scalar of prior probability
+    # sigma: variance estimate
+    # return: vector of posterior probability
     lambda * dnorm(x = res, mean = 0, sd = sigma)
   }
 
@@ -25,7 +29,7 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
     lmList = result$lmList
     lambdaList = result$lambdaList
     resList = lapply(lmList, function(m) m$residuals)
-    sigmaList = mapply(function(m, lambda) {summary(m)$sigma / sqrt(lambda)}, lmList, lambdaList, SIMPLIFY = FALSE)
+    sigmaList = lapply(X = lmList, FUN = function(m) summary(m)$sigma)
     PList = mapply(conditionalP, resList, lambdaList, sigmaList, SIMPLIFY = FALSE)
     sumsP = rowSums(do.call(cbind, PList))
     WList = lapply(PList, function(p) p/sumsP)
@@ -34,19 +38,28 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
     return(list(WList = WList, ll = ll))
   }
 
-  # M step
+  # M step: update lmList, lambdaList
   MUpdate <- function(WList) {
-    lambdaList = sapply(WList, mean) %>%
-      (function(x) (x > min_lambda)*x + (x <= min_lambda)*min_lambda) %>%
-      (function(x) x/sum(x)) %>%
-      as.list
-    wlm <- function(i) {
+    updateLambda <- function(WList) {
+      sapply(WList, mean) %>%
+        (function(x) (x > min_lambda)*x + (x <= min_lambda)*min_lambda) %>%
+        (function(x) x/sum(x)) %>%
+        as.list
+    }
+
+    lambdaList = updateLambda(WList = WList)
+
+    wlm <- function(fml, W) {
+      # fml: formula
+      # W: weights
       tempData <- regData
-      tempData$WW <- WList[[i]]
-      reg = lm(formula = formulaList[[i]], weights = WW, data = tempData)
+      tempData$Wt <- W/mean(W)  # rescale weights so that mean == 1
+      reg = lm(formula = fml, weights = Wt, data = tempData)
       return(reg)
     }
-    lmList = lapply(FUN = wlm, as.list(1:length(formulaList)))
+
+    lmList = mapply(FUN = wlm, formulaList, WList, SIMPLIFY = FALSE)
+
     return(list(lmList = lmList, lambdaList = lambdaList))
   }
 
@@ -149,7 +162,7 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
           c(diff, iter, restart, ll,
             newLL, summary(newResult$lmList[[1]])$sigma, summary(newResult$lmList[[2]])$sigma, summary(newResult$lmList[[1]])$sigma/summary(newResult$lmList[[2]])$sigma, newResult$lambdaList[[1]], newResult$lambdaList[[2]],
             judge$"error_message")
-          )
+        )
     }
 
     if (!silently) {
@@ -162,7 +175,9 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
     mixtureRegModel = list(
       "lmList" = result$lmList,
       "monitor" = monitor,
-      "regData" = regData)
+      "regData" = regData,
+      "prior" = result$lambdaList,
+      "posterior" = WList)
     class(mixtureRegModel) = c("mixtureReg", class(mixtureRegModel))
     return(mixtureRegModel)
   }
