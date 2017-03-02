@@ -188,6 +188,7 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
 
     mixtureRegModel = list(
       "lmList" = result$lmList,
+      "logLik" = ll,
       "monitor" = monitor,
       "regData" = regData,
       "prior" = result$lambdaList,

@@ -31,10 +31,6 @@ However, there is a way to solve it more intuitively.
 In its `lm` class, R has already offered powerful coefficient restriction capability through the unique formula representing language.
 So this package implements the algorithm based on the powerfulness of the `lm` class and now offers the same flexibility to model the mixture of regressions.
 
-## Future plan
-
-  - Create a `logLik` method: Which is a commonly seen method in R, and can potentially simplify the code.
-
 ## References
 de Veaux RD (1989). "Mixtures of Linear Regressions." Computational Statistics and Data Analysis, 8, 227-245.
 
