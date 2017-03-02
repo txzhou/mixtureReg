@@ -97,6 +97,8 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
   }
 
   randomWList <- function(n, k) {
+    # n: number of obs
+    # k: number of regression lines
     randomWeightMatrix = matrix(runif(n*k, min = 0.1, max = 0.9), nrow = n, ncol = k)
     WMatrix = randomWeightMatrix / (rowSums(randomWeightMatrix))
     WList = lapply(as.list(1:k), function(i) WMatrix[,i])
@@ -181,27 +183,4 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
     class(mixtureRegModel) = c("mixtureReg", class(mixtureRegModel))
     return(mixtureRegModel)
   }
-}
-
-
-initializeWList <- function(y, initialGuess,
-                            lambdaList = list(0.1, 0.9), sigmaList = NULL) {
-  # initialGuess: a list of guess
-
-  if (is.null(sigmaList)) {
-    ySigma = sd(y)
-    sigmaList = list(ySigma, ySigma)
-  }
-
-  conditionalP <- function(res, lambda, sigma) {
-    lambda * dnorm(x = res, mean = 0, sd = sigma)
-  }
-
-  resList = lapply(initialGuess, function(g) y-g)
-  PList = mapply(conditionalP, resList, lambdaList, sigmaList, SIMPLIFY = FALSE)
-  sumsP = rowSums(do.call(cbind, PList))
-
-  WList = lapply(PList, function(p) {p/sumsP})
-
-  return(WList)
 }
