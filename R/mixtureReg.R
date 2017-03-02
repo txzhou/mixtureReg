@@ -1,6 +1,6 @@
 mixtureReg <- function(regData, formulaList, initialWList = NULL,
                        epsilon = 1e-08, max_iter = 10000,
-                       min_lambda = 0.05, min_sigmaRatio = 0.1, max_restart = 15,
+                       min_lambda = 0.01, min_sigmaRatio = 0.1, max_restart = 15,
                        silently = FALSE
 ) {
   # regData: data frame used in fitting model.
@@ -41,10 +41,22 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
   # M step: update lmList, lambdaList
   MUpdate <- function(WList) {
     updateLambda <- function(WList) {
-      sapply(WList, mean) %>%
-        (function(x) (x > min_lambda)*x + (x <= min_lambda)*min_lambda) %>%
-        (function(x) x/sum(x)) %>%
-        as.list
+      standardizeW <- function(WList) {
+        WSums <- WList %>%
+          unlist %>%
+          (function(x) (x > min_lambda)*x + (x <= min_lambda)*min_lambda) %>%
+          matrix(., ncol = length(WList)) %>%
+          rowSums()
+        lapply(X = WList, FUN = function(x) x/WSums)
+      }
+
+      estimateLambda <- function(WList) {  # function to estimate prior weights
+        lapply(WList, function(x) rep(mean(x), length(x)))
+      }
+
+      WList %>%
+        standardizeW %>%
+        estimateLambda
     }
 
     lambdaList = updateLambda(WList = WList)
@@ -65,7 +77,7 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
 
   # restart step
   isSingular <- function(lambdaList) {
-    return(any(lambdaList < epsilon))
+    return(any(unlist(lambdaList) < epsilon))
   }
 
   needRestart <- function(newResult, newLL){
