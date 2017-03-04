@@ -98,6 +98,17 @@ mx4 <- mixtureReg(
 plot(mx4, which = 1)
 ```
 
+```{r}
+mx5 <- mixtureReg(
+  regData = CO2data,
+  formulaList = list(formula(CO2 ~ GNP),
+                     formula(CO2 ~ GNP)),
+  mixingProb = "loess"
+  )
+
+plot(mx5, which = 1)
+```
+
 # Comparison with **mixtools**
 The main shortcoming of **mixtools** is that it doesn't provide easy to use options to restrict model coefficients like we do in model 2.
 

@@ -1,6 +1,9 @@
-mixtureReg <- function(regData, formulaList, initialWList = NULL,
-                       epsilon = 1e-08, max_iter = 10000,
-                       min_lambda = 0.01, min_sigmaRatio = 0.1, max_restart = 15,
+mixtureReg <- function(regData, formulaList,
+                       xName = NULL, yName = NULL,
+                       mixingProb = c("constant", "kern"),
+                       initialWList = NULL,
+                       epsilon = 1e-08, max_iter = 10000, max_restart = 15,
+                       min_lambda = 0.01, min_sigmaRatio = 0.1,
                        silently = FALSE
 ) {
   # regData: data frame used in fitting model.
@@ -8,7 +11,8 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
   # initialWList: a list of weights guesses (provided by user).
 
   # missing values in data or data with no variance will crash the algorithm
-  yName = all.vars(formulaList[[1]])[1]
+  if(is.null(yName)) {yName = all.vars(formulaList[[1]])[1]}
+  if(is.null(xName)) {xName = all.vars(formulaList[[1]])[2]}
   stopifnot(
     all(!is.na(regData[, yName])),
     var(regData[ ,yName]) > 0
@@ -50,8 +54,29 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
         lapply(X = WList, FUN = function(x) x/WSums)
       }
 
-      estimateLambda <- function(WList) {  # function to estimate prior weights
-        lapply(WList, function(x) rep(mean(x), length(x)))
+      estimateLambda <- function(WList) {
+        # function to estimate prior weights
+        if (mixingProb == "constant") {
+          lamList <- lapply(X = WList,
+                            FUN = function(x) rep(mean(x), length(x)))
+        } else if (mixingProb == "loess") {
+          lamList <- lapply(
+            X = WList,
+            FUN = function(x) predict(loess(x ~ regData[ , xName], degree = 1))
+          )
+        } else if (mixingProb == "kern") {
+          lamList <- lapply(
+            X = WList,
+            FUN = function(w)
+              ksmooth(x = regData[ , xName],
+                      y = w,
+                      kernel = "normal",
+                      x.points = regData[ , xName],
+                      bandwidth = 25
+              )$y
+          )
+        }
+        return(lamList)
       }
 
       WList %>%
@@ -89,13 +114,16 @@ mixtureReg <- function(regData, formulaList, initialWList = NULL,
         errorMessage <- "abnormal logLik"
         answer <- TRUE
       } else {
-        sigma_s = mapply(function(m, lambda) {summary(m)$sigma / sqrt(lambda)}, newResult$lmList, newResult$lambdaList, SIMPLIFY = TRUE)
+        sigma_s = mapply(function(m, lambda) {summary(m)$sigma / sqrt(lambda)},
+                         newResult$lmList, newResult$lambdaList,
+                         SIMPLIFY = TRUE)
         if (any(is.na(sigma_s))) {
           errorMessage <- "sigma is NA"
           answer <- TRUE
         } else {
           sigmaRatio_s = sigma_s/sigma_s[1]
-          if (any(sigmaRatio_s < min_sigmaRatio) || any(sigmaRatio_s > 1/min_sigmaRatio)) {
+          if (any(sigmaRatio_s < min_sigmaRatio) ||
+              any(sigmaRatio_s > 1/min_sigmaRatio)) {
             errorMessage <- "sigma ratio constraint"
             answer <- TRUE
           } else {
