@@ -1,3 +1,4 @@
 export(mixtureReg)
 
 S3method(plot, mixtureReg)
+S3method(logLik, mixtureReg)
