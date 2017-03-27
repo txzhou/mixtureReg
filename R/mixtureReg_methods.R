@@ -1,12 +1,29 @@
 # methods for mixtureReg
+
+#' Sort by X Coordinates and Add Line to a Plot
+#'
+#' Rearrange X and Y coordinates before calling "lines()" function.
+#' @param x X coordinate vectors of points to join.
+#' @param y Y coordinate vectors of points to join.
+#' @param ...	Further graphical parameters.
 orderedLines <- function(x, y, ...) {
   # a helper function used in plotting
   xOrder <- order(x)
   lines(x = x[xOrder], y = y[xOrder], ...)
 }
 
+#' Plot Fit and Mixing Probability of a mixtureReg Object
+#'
+#' S3 plot method for class 'mixtureReg'.
+#' @param mixtureModel mixtureReg object, typically result from 'mixtureReg()'.
+#' @param which numeric; choose which plot to display. '1' gives a plot of fit; '2' gives a plot of mixing probability.
+#' @param xName character; Name used to pick x variable from data.
+#' @param yName character; Name used to pick y variable from data.
+#' @param xlab character; label that should be put on the x axis.
+#' @param ylab character; label that should be put on the y axis.
+#' @param ...	Further graphical parameters.
 plot.mixtureReg <- function(mixtureModel, which = 1:2,
-                            yName = NULL, xName = NULL,
+                            xName = NULL, yName = NULL,
                             xlab = NULL, ylab = NULL,
                             ...) {
   # plot method for "mixtureReg" class
@@ -35,6 +52,13 @@ plot.mixtureReg <- function(mixtureModel, which = 1:2,
   }
 }
 
+#' Obtain Log-likelihood from a mixtureReg Object
+#'
+#' S3 method for class 'mixtureReg'.
+#' However, it doesn't return a 'logLik' object.
+#' For simlicity, it returns a 'numeric' value.
+#' @param mixtureModel mixtureReg object, typically result from 'mixtureReg()'.
+#' @return Return a numeric value of log likelihood.
 logLik.mixtureReg <- function(mixtureModel) {
   return(mixtureModel$"logLik")
 }

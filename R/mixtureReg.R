@@ -1,3 +1,10 @@
+#' Function to Fit Mixture of Regressions
+#'
+#' The main function in this package.
+#' @param regData: data frame used in fitting model.
+#' @param formulaList: a list of the regression components that need to be estimated.
+#' @param initialWList: a list of weights guesses (provided by user).
+#' @return A class 'mixtureReg' object.
 mixtureReg <- function(regData, formulaList,
                        xName = NULL, yName = NULL,
                        mixingProb = c("constant", "kern"),
@@ -6,13 +13,10 @@ mixtureReg <- function(regData, formulaList,
                        min_lambda = 0.01, min_sigmaRatio = 0.1,
                        silently = FALSE
 ) {
-  # regData: data frame used in fitting model.
-  # formulaList: a list of the regression components that need to be estimated.
-  # initialWList: a list of weights guesses (provided by user).
-
-  # missing values in data or data with no variance will crash the algorithm
   if(is.null(yName)) {yName = all.vars(formulaList[[1]])[1]}
   if(is.null(xName)) {xName = all.vars(formulaList[[1]])[2]}
+
+  # missing values in data or data with no variance will crash the algorithm
   stopifnot(
     all(!is.na(regData[, yName])),
     var(regData[ ,yName]) > 0

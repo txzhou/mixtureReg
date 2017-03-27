@@ -4,8 +4,11 @@ Title: Mixture of Linear Regressions
 Version: 0.1.0
 Author: Tianxia Zhou
 Maintainer: Tianxia Zhou <tianxiazhou@gmail.com>
-Description: Fit data with mixture of linear regressions.
-    The fitting algorithm is based on an EM approach proposed in de Veaux RD (1989). The "mixtureReg" function offers similar functionality with "regmixEM" in the "mixtools" package, but is able to take more flexible function forms.
+Description: Fit data with mixture of linear regressions. The fitting algorithm
+    is based on an EM approach proposed in de Veaux RD (1989). The "mixtureReg"
+    function offers similar functionality with "regmixEM" in the "mixtools" package,
+    but is able to take more flexible function forms.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 5.0.1
