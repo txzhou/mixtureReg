@@ -107,6 +107,7 @@ mx5 <- mixtureReg(
   )
 
 plot(mx5, which = 1)
+plot(mx5, which = 2)
 ```
 
 # Comparison with **mixtools**

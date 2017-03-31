@@ -17,4 +17,3 @@ S3 method for class 'mixtureReg'.
 However, it doesn't return a 'logLik' object.
 For simlicity, it returns a 'numeric' value.
 }
-

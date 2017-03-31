@@ -16,4 +16,3 @@ orderedLines(x, y, ...)
 \description{
 Rearrange X and Y coordinates before calling "lines()" function.
 }
-

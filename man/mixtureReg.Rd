@@ -5,16 +5,39 @@
 \title{Function to Fit Mixture of Regressions}
 \usage{
 mixtureReg(regData, formulaList, xName = NULL, yName = NULL,
-  mixingProb = c("constant", "kern"), initialWList = NULL,
+  mixingProb = c("Constant", "loess"), initialWList = NULL,
   epsilon = 1e-08, max_iter = 10000, max_restart = 15,
   min_lambda = 0.01, min_sigmaRatio = 0.1, silently = FALSE)
 }
 \arguments{
-\item{regData:}{data frame used in fitting model.}
+\item{regData}{data frame used in fitting model.}
 
-\item{formulaList:}{a list of the regression components that need to be estimated.}
+\item{formulaList}{a list of the regression components that need to be estimated.}
 
-\item{initialWList:}{a list of weights guesses (provided by user).}
+\item{xName}{character; Name used to pick x variable from data.}
+
+\item{yName}{character; Name used to pick y variable from data.}
+
+\item{mixingProb}{character;
+Specify how the mixing probabilities are estimated in the M step.
+"Constant" specifies a constant mixing probabilities;
+"loess" specifies predictor dependent mixing probabilities obtained by loess smoothing.}
+
+\item{initialWList}{a list of weights guesses (provided by user).
+Typically this is not used, unless the user has a good initial guess.}
+
+\item{epsilon}{a small value that the function consider as zero.
+The value is used in determine matrix sigularity and in determine convergence.}
+
+\item{max_iter}{the maximum number of iterations.}
+
+\item{max_restart}{the maximum number of restart before giving up.}
+
+\item{min_lambda}{a value used to ensure estimated mixing probabilities (lambda's) are not too close to zero.}
+
+\item{min_sigmaRatio}{a value used to prevent estimated variaces of any regression component from collapsing to zero.}
+
+\item{silently}{a switch to turn off the screen printout.}
 }
 \value{
 A class 'mixtureReg' object.
@@ -22,4 +45,3 @@ A class 'mixtureReg' object.
 \description{
 The main function in this package.
 }
-

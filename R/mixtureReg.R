@@ -1,13 +1,30 @@
 #' Function to Fit Mixture of Regressions
 #'
 #' The main function in this package.
-#' @param regData: data frame used in fitting model.
-#' @param formulaList: a list of the regression components that need to be estimated.
-#' @param initialWList: a list of weights guesses (provided by user).
+#'
+#' @param regData data frame used in fitting model.
+#' @param formulaList a list of the regression components that need to be estimated.
+#' @param xName character; Name used to pick x variable from data.
+#' @param yName character; Name used to pick y variable from data.
+#' @param mixingProb character;
+#' Specify how the mixing probabilities are estimated in the M step.
+#' "Constant" specifies a constant mixing probabilities;
+#' "loess" specifies predictor dependent mixing probabilities obtained by loess smoothing.
+#' @param initialWList a list of weights guesses (provided by user).
+#' Typically this is not used, unless the user has a good initial guess.
+#' @param epsilon a small value that the function consider as zero.
+#' The value is used in determine matrix sigularity and in determine convergence.
+#' @param max_iter the maximum number of iterations.
+#' @param max_restart the maximum number of restart before giving up.
+#' @param min_lambda a value used to ensure estimated mixing probabilities (lambda's) are not too close to zero.
+#' @param min_sigmaRatio a value used to prevent estimated variaces of any regression component from collapsing to zero.
+#' @param silently a switch to turn off the screen printout.
 #' @return A class 'mixtureReg' object.
+#'
+#' @export mixtureReg
 mixtureReg <- function(regData, formulaList,
                        xName = NULL, yName = NULL,
-                       mixingProb = c("constant", "kern"),
+                       mixingProb = c("Constant", "loess"),
                        initialWList = NULL,
                        epsilon = 1e-08, max_iter = 10000, max_restart = 15,
                        min_lambda = 0.01, min_sigmaRatio = 0.1,
@@ -60,24 +77,13 @@ mixtureReg <- function(regData, formulaList,
 
       estimateLambda <- function(WList) {
         # function to estimate prior weights
-        if (mixingProb == "constant") {
+        if (mixingProb == "Constant") {
           lamList <- lapply(X = WList,
                             FUN = function(x) rep(mean(x), length(x)))
         } else if (mixingProb == "loess") {
           lamList <- lapply(
             X = WList,
-            FUN = function(x) predict(loess(x ~ regData[ , xName], degree = 1))
-          )
-        } else if (mixingProb == "kern") {
-          lamList <- lapply(
-            X = WList,
-            FUN = function(w)
-              ksmooth(x = regData[ , xName],
-                      y = w,
-                      kernel = "normal",
-                      x.points = regData[ , xName],
-                      bandwidth = 25
-              )$y
+            FUN = function(w) predict(loess(w ~ regData[ , xName], degree = 0))
           )
         }
         return(lamList)

@@ -10,7 +10,8 @@
 \arguments{
 \item{mixtureModel}{mixtureReg object, typically result from 'mixtureReg()'.}
 
-\item{which}{numeric; choose which plot to display. '1' gives a plot of fit; '2' gives a plot of mixing probability.}
+\item{which}{numeric; choose which plot to display.
+'1' gives a plot of fit; '2' gives a plot of mixing probability.}
 
 \item{xName}{character; Name used to pick x variable from data.}
 
@@ -25,4 +26,3 @@
 \description{
 S3 plot method for class 'mixtureReg'.
 }
-
