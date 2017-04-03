@@ -53,7 +53,7 @@ plot.mixtureReg <- function(mixtureModel, which = 1:2,
     for (i in 1:length(mixtureModel$lmList)) {
       plot(x = XX, y = mixtureModel$posterior[[i]],
            xlab = xlab, ylab = paste0("Weights_", i),
-           ylim = c(0,1),
+           ylim = c(-0.01,1.01),
            ...)
       orderedLines(x = XX, y = mixtureModel$prior[[i]], col = i + 1)
     }
