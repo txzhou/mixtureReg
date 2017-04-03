@@ -115,18 +115,21 @@ mixtureReg <- function(regData, formulaList,
     return(any(unlist(lambdaList) < epsilon))
   }
 
-  needRestart <- function(newResult, newLL){
+  needRestart <- function(newResult, newLL, iter, restart) {
+    if (newLL < ll) {
+      errorMessage <- "smaller logLik"
+      answer <- TRUE
+    }
+
     if (isSingular(newResult$lambdaList)) {
       errorMessage <- "sigular lambda list"
       answer <- TRUE
     } else {
-      if (is.na(newLL) || newLL < ll || abs(newLL) == Inf) {
+      if (is.na(newLL) || abs(newLL) == Inf) {
         errorMessage <- "abnormal logLik"
         answer <- TRUE
       } else {
-        sigma_s = mapply(function(m, lambda) {summary(m)$sigma / sqrt(lambda)},
-                         newResult$lmList, newResult$lambdaList,
-                         SIMPLIFY = TRUE)
+        sigma_s = sapply(X = newResult$lmList, FUN = function(m) summary(m)$sigma)
         if (any(is.na(sigma_s))) {
           errorMessage <- "sigma is NA"
           answer <- TRUE
@@ -182,9 +185,15 @@ mixtureReg <- function(regData, formulaList,
       WList <- newE$WList
       ll <- newE$ll
 
-      monitor <- data.frame("diff" = diff, "iter" = iter, "restart" = restart, "logLik" = ll,
-                            "newLL" = NA, "sigma1" = summary(newResult$lmList[[1]])$sigma, "sigma2" = summary(newResult$lmList[[2]])$sigma, "ratio" = summary(newResult$lmList[[1]])$sigma/summary(newResult$lmList[[2]])$sigma, "lambda1" = newResult$lambdaList[[1]], "lambda2" = newResult$lambdaList[[2]],
-                            "error_message" = NA)
+      monitor <- data.frame(
+        "diff" = diff, "iter" = iter, "restart" = restart, "logLik" = ll,
+        "newLL" = NA,
+        "sigma1" = summary(newResult$lmList[[1]])$sigma,
+        "sigma2" = summary(newResult$lmList[[2]])$sigma,
+        "ratio" = summary(newResult$lmList[[1]])$sigma/summary(newResult$lmList[[2]])$sigma,
+        "lambda1" = mean(newResult$lambdaList[[1]]),
+        "lambda2" = mean(newResult$lambdaList[[2]]),
+        "error_message" = NA)
     }
 
     # while loop
@@ -197,8 +206,8 @@ mixtureReg <- function(regData, formulaList,
       newE = EUpdate(newResult)
       newLL = newE$ll
 
-      judge <- needRestart(newResult, newLL)
-      if (iter > 10 & judge$"answer") {
+      judge <- needRestart(newResult, newLL, iter, restart)
+      if (judge$"answer") {
         WList = randomWList(n, k)
         restart <- restart + 1
       } else {
@@ -212,7 +221,12 @@ mixtureReg <- function(regData, formulaList,
         rbind(
           monitor,
           c(diff, iter, restart, ll,
-            newLL, summary(newResult$lmList[[1]])$sigma, summary(newResult$lmList[[2]])$sigma, summary(newResult$lmList[[1]])$sigma/summary(newResult$lmList[[2]])$sigma, newResult$lambdaList[[1]], newResult$lambdaList[[2]],
+            newLL,
+            summary(newResult$lmList[[1]])$sigma,
+            summary(newResult$lmList[[2]])$sigma,
+            summary(newResult$lmList[[1]])$sigma/summary(newResult$lmList[[2]])$sigma,
+            mean(newResult$lambdaList[[1]]),
+            mean(newResult$lambdaList[[2]]),
             judge$"error_message")
         )
     }
