@@ -83,7 +83,11 @@ mixtureReg <- function(regData, formulaList,
         } else if (mixingProb == "loess") {
           lamList <- lapply(
             X = WList,
-            FUN = function(w) predict(loess(w ~ regData[ , xName], degree = 0))
+            FUN = function(w) {
+              predict(loess(formula = w ~ regData[ , xName],
+                            degree = 0,
+                            control=loess.control(surface="direct")))
+            }
           )
         }
         return(lamList)
