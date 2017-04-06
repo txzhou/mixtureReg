@@ -60,6 +60,56 @@ plot.mixtureReg <- function(mixtureModel, which = 1:2,
   }
 }
 
+#' Plot a List of mixtureReg Objects
+#'
+#' Feed in a list of mixtureReg models and get an overlayed plot.
+#'
+#' @param mixtureRegList a list of multiple mixtureReg objects.
+#' @param xName character; Name used to pick x variable from data.
+#' @param yName character; Name used to pick y variable from data.
+#' @param ...	Further graphical parameters.
+#'
+#' @export plot.mixtureRegList
+plot.mixtureRegList <- function(mixtureRegList,
+                                xName = NULL, yName = NULL,
+                                ...) {
+  # plot overlayed plots for a list of 'mixtureReg' models
+
+  getPlotData <- function(mReg) {
+    XX = mReg$regData[ , xName]
+    YY = mReg$regData[ , yName]
+    YhatList = lapply(X = mReg$lmList, FUN = function(x) predict(x))
+    return(list("XX" = XX,
+                "YY" = YY,
+                "YhatList" = YhatList))
+  }
+
+  plotDataList <- lapply(X = mixtureRegList,
+                         FUN = getPlotData)
+
+  plot(x = bind_rows(
+    lapply(X = plotDataList,
+           FUN = function(pd) {
+             dd <- data_frame("Xs" = pd$"XX", "Ys" = pd$"YY")
+             return(dd)
+           }
+    )
+  ),
+  xlab = xName, ylab = yName, type = 'n',
+  ...)
+
+  for (i in seq_along(plotDataList)) {
+    points(x = plotDataList[[i]]$"XX",
+           y = plotDataList[[i]]$"YY",
+           col = i + 1, pch = i + 1)
+    for (j in seq_along(plotDataList[[i]]$"YhatList")) {
+      orderedLines(x = plotDataList[[i]]$"XX",
+                   y = plotDataList[[i]]$"YhatList"[[j]],
+                   col = i + 1)
+    }
+  }
+}
+
 #' Obtain Log-likelihood from a mixtureReg Object
 #'
 #' S3 method for class 'mixtureReg'.

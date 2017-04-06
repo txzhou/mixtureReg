@@ -30,7 +30,8 @@ library(mixtureReg)
 mx1 <- mixtureReg(
   regData = CO2data,
   formulaList = list(formula(CO2 ~ GNP),
-                     formula(CO2 ~ GNP))
+                     formula(CO2 ~ GNP)),
+  mixingProb = "Constant"
 )
 ```
 
@@ -69,7 +70,8 @@ When not specified, the plot method will search the variables in the first formu
 mx2 <- mixtureReg(
   regData = CO2data,
   formulaList = list(formula(CO2 ~ 1),
-                     formula(CO2 ~ GNP))
+                     formula(CO2 ~ GNP)),
+  mixingProb = "Constant"
   )
 
 plot(mx2, yName = "CO2", xName = "GNP", which = 1)
@@ -80,7 +82,8 @@ We can also specify 2nd order polynomial lines.
 mx3 <- mixtureReg(
   regData = CO2data,
   formulaList = list(formula(CO2 ~ GNP + I(GNP^2)),
-                     formula(CO2 ~ GNP + I(GNP^2)))
+                     formula(CO2 ~ GNP + I(GNP^2))),
+  mixingProb = "Constant"
   )
 
 plot(mx3, which = 1)
@@ -92,11 +95,21 @@ mx4 <- mixtureReg(
   regData = CO2data,
   formulaList = list(formula(CO2 ~ GNP),
                      formula(CO2 ~ GNP),
-                     formula(CO2 ~ GNP))
+                     formula(CO2 ~ GNP)),
+  mixingProb = "Constant"
   )
 
 plot(mx4, which = 1)
 ```
+
+
+# Predictor dependent mixing probabilities
+Benaglia et al. (2009), proposed this modelling strategy through kernal smoothing.
+In the **mixtools** package this functionalities is offered in **mixtools::regmixEM.loc()**.
+
+In this package we followed the same spirit but implement the smoothing based on R's own **stats::loess()**
+
+To enable this flexibility, simply specify it in the function call.
 
 ```{r}
 mx5 <- mixtureReg(
@@ -109,6 +122,39 @@ mx5 <- mixtureReg(
 plot(mx5, which = 1)
 plot(mx5, which = 2)
 ```
+
+# Extra plotting power
+Using **plot.mixtureRegList()** function, we can compare two or more models.
+
+For example, let's gather a few models and overlay them on top of each other.
+
+```{r}
+plot.mixtureRegList(mixtureRegList = list(mx1, mx3, mx4, mx5),
+                    xName = "GNP", yName = "CO2")
+```
+
+Another example.
+Here we fit two models using two subsets of the data.
+
+```{r}
+plot.mixtureRegList(
+  mixtureRegList = list(
+    "mx6" = mixtureReg(
+      regData = CO2data[1:14, ],
+      formulaList = list(formula(CO2 ~ GNP),
+                         formula(CO2 ~ GNP)),
+      mixingProb = "Constant"
+    ),
+    "mx7" = mixtureReg(
+      regData = CO2data[15:28, ],
+      formulaList = list(formula(CO2 ~ GNP),
+                         formula(CO2 ~ GNP)),
+      mixingProb = "Constant"
+    )
+  ),
+  xName = "GNP", yName = "CO2")
+```
+
 
 # Comparison with **mixtools**
 The main shortcoming of **mixtools** is that it doesn't provide easy to use options to restrict model coefficients like we do in model 2.
